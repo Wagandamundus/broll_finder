@@ -13,7 +13,6 @@ from firebase_admin import credentials, firestore
 from datetime import datetime
 from collections import defaultdict
 
-# --- FIREBASE ---
 @st.cache_resource
 def init_firebase():
     if not firebase_admin._apps:
@@ -24,10 +23,7 @@ def init_firebase():
 
 def log_event(db, event_type):
     try:
-        db.collection("analytics").add({
-            "event": event_type,
-            "timestamp": datetime.utcnow()
-        })
+        db.collection("analytics").add({"event": event_type, "timestamp": datetime.utcnow()})
     except:
         pass
 
@@ -37,203 +33,308 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
 
+*, *::before, *::after { box-sizing: border-box; }
+
 html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-    background-color: #121212;
+    font-family: 'Inter', sans-serif !important;
+    background-color: #0a0a0a;
     color: #FFFFFF;
 }
-.block-container {
-    max-width: 920px;
-    margin: auto;
-    padding-top: 2.5rem;
-    padding-bottom: 4rem;
+
+/* Subtle grid background */
+.stApp {
+    background-color: #0a0a0a;
+    background-image:
+        linear-gradient(rgba(29,185,84,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(29,185,84,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
 }
+
+/* Green glow at top */
+.stApp::before {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(29,185,84,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.block-container {
+    max-width: 880px !important;
+    margin: 0 auto !important;
+    padding: 3rem 2rem 5rem !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Typography */
 h1 {
-    font-size: 2.6rem !important;
+    font-size: 2.8rem !important;
     font-weight: 900 !important;
-    color: #1DB954 !important;
-    letter-spacing: -1.5px;
+    color: #FFFFFF !important;
+    letter-spacing: -2px !important;
+    line-height: 1 !important;
     margin-bottom: 0 !important;
 }
-.subtitle { color: #6a6a6a; font-size: 0.95rem; margin-top: 6px; margin-bottom: 32px; }
-.label { font-size: 0.7rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #535353; margin-bottom: 8px; }
+h1 span { color: #1DB954; }
 
+.subtitle {
+    color: #4a4a4a;
+    font-size: 0.95rem;
+    margin-top: 8px;
+    margin-bottom: 40px;
+    letter-spacing: 0.2px;
+}
+
+.section-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #3a3a3a;
+    margin-bottom: 10px;
+}
+
+/* Divider */
+.hr { border: none; border-top: 1px solid #1a1a1a; margin: 32px 0; }
+
+/* Inputs */
 .stTextInput > div > input,
 .stTextArea > div > textarea {
-    background-color: #282828 !important;
-    border: 1.5px solid #3a3a3a !important;
-    border-radius: 8px !important;
+    background-color: #111111 !important;
+    border: 1px solid #222222 !important;
+    border-radius: 10px !important;
     color: #FFFFFF !important;
-    font-size: 0.95rem !important;
-    padding: 12px 16px !important;
+    font-size: 0.93rem !important;
+    padding: 13px 16px !important;
+    font-family: 'Inter', sans-serif !important;
+    transition: border-color 0.15s !important;
 }
 .stTextInput > div > input:focus,
 .stTextArea > div > textarea:focus {
     border-color: #1DB954 !important;
-    box-shadow: 0 0 0 3px rgba(29,185,84,0.12) !important;
+    box-shadow: 0 0 0 3px rgba(29,185,84,0.1) !important;
+    outline: none !important;
+}
+.stTextInput > div > input::placeholder,
+.stTextArea > div > textarea::placeholder {
+    color: #333 !important;
 }
 
-/* All buttons base */
+/* ALL buttons — green/black system */
 .stButton > button {
     background: #1DB954 !important;
-    color: #000 !important;
-    font-size: 0.88rem !important;
+    color: #000000 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.82rem !important;
     font-weight: 700 !important;
-    height: 44px !important;
-    border-radius: 22px !important;
+    height: 42px !important;
+    border-radius: 21px !important;
     border: none !important;
     width: 100% !important;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
+    letter-spacing: 1.2px !important;
+    text-transform: uppercase !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
 }
-.stButton > button:hover { background: #1ED760 !important; }
+.stButton > button:hover {
+    background: #1ED760 !important;
+    transform: scale(1.02) !important;
+}
+.stButton > button:active {
+    transform: scale(0.98) !important;
+}
 
-/* Danger button (remove) */
-button[kind="secondary"] {
-    background: #2a1a1a !important;
-    color: #e05555 !important;
-    border: 1px solid #533 !important;
+/* Secondary / danger buttons */
+.stButton.danger > button {
+    background: #111 !important;
+    color: #cc4444 !important;
+    border: 1px solid #2a1a1a !important;
 }
-button[kind="secondary"]:hover {
-    background: #E91429 !important;
+.stButton.danger > button:hover {
+    background: #cc4444 !important;
     color: #fff !important;
+    border-color: #cc4444 !important;
 }
 
+/* Ghost button */
+.stButton.ghost > button {
+    background: transparent !important;
+    color: #555 !important;
+    border: 1px solid #222 !important;
+}
+.stButton.ghost > button:hover {
+    background: #111 !important;
+    color: #fff !important;
+    border-color: #333 !important;
+}
+
+/* Sliders */
+.stSlider [data-baseweb="slider"] div[role="slider"] {
+    background: #1DB954 !important;
+    border-color: #1DB954 !important;
+}
+.stSlider [data-baseweb="slider"] > div > div > div {
+    background: #1DB954 !important;
+}
+
+/* Expander */
 .stExpander {
-    background-color: #181818 !important;
-    border: 1px solid #282828 !important;
+    background: #0d0d0d !important;
+    border: 1px solid #1a1a1a !important;
     border-radius: 12px !important;
     margin-bottom: 8px !important;
+    overflow: hidden !important;
 }
-.stExpander summary {
-    font-size: 0.85rem !important;
-    font-weight: 700 !important;
-    color: #e0e0e0 !important;
-    letter-spacing: 0.5px;
+.stExpander > details > summary {
+    padding: 14px 18px !important;
+    cursor: pointer !important;
+}
+.stExpander > details > summary:hover {
+    background: #111 !important;
 }
 
-.hr { border: none; border-top: 1px solid #282828; margin: 28px 0; }
+/* Checkbox */
+.stCheckbox > label {
+    color: #888 !important;
+    font-size: 0.8rem !important;
+    gap: 8px !important;
+}
+.stCheckbox > label > span[data-baseweb="checkbox"] > div {
+    border-color: #333 !important;
+    background: transparent !important;
+    border-radius: 4px !important;
+}
+.stCheckbox > label > span[data-baseweb="checkbox"] > div[data-checked="true"] {
+    background: #1DB954 !important;
+    border-color: #1DB954 !important;
+}
 
+/* Limit badge */
 .limit-badge {
-    background: #181818;
-    border: 1px solid #282828;
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
     border-radius: 10px;
-    padding: 12px 18px;
-    margin-bottom: 28px;
-    font-size: 0.88rem;
-    color: #b3b3b3;
+    padding: 12px 20px;
+    margin-bottom: 32px;
+    font-size: 0.85rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
+/* Paywall */
 .paywall {
-    background: #1a0a0a;
-    border: 1px solid #533;
-    border-radius: 14px;
-    padding: 36px 28px;
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 16px;
+    padding: 48px 36px;
+    text-align: center;
     margin-bottom: 24px;
+}
+.pro-table { width: 100%; border-collapse: collapse; margin: 16px auto 28px; max-width: 460px; }
+.pro-table th { color: #1DB954; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; padding: 10px 16px; text-align: left; border-bottom: 1px solid #1a1a1a; }
+.pro-table td { padding: 10px 16px; font-size: 0.85rem; border-bottom: 1px solid #111; color: #666; }
+.pro-table .yes { color: #1DB954; font-weight: 700; }
+.pro-table .no { color: #2a2a2a; }
+
+/* Stat cards */
+.stat-card {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 24px 16px;
     text-align: center;
 }
-.pro-table { width: 100%; border-collapse: collapse; margin: 12px auto 24px; }
-.pro-table th { background: #1a1a1a; color: #1DB954; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
-.pro-table td { padding: 10px 14px; font-size: 0.85rem; border-top: 1px solid #282828; color: #b3b3b3; }
-.pro-table .check { color: #1DB954; font-weight: 700; }
-.pro-table .cross { color: #535353; }
+.stat-num { font-size: 2.4rem; font-weight: 900; color: #1DB954; line-height: 1; }
+.stat-lbl { font-size: 0.65rem; color: #333; margin-top: 8px; text-transform: uppercase; letter-spacing: 2px; }
 
-.stat { background: #181818; border: 1px solid #282828; border-radius: 12px; padding: 22px 16px; text-align: center; }
-.stat-n { font-size: 2.2rem; font-weight: 900; color: #1DB954; line-height: 1; }
-.stat-l { font-size: 0.72rem; color: #535353; margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; }
+/* Keyword row */
+.kw-row {
+    display: flex;
+    align-items: center;
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    color: #ccc;
+}
 
-/* Image card - click handled by button overlay */
-.img-outer {
-    position: relative;
+/* Image card */
+.img-card {
     border-radius: 10px;
     overflow: hidden;
-    margin-bottom: 2px;
+    border: 1.5px solid #1a1a1a;
+    background: #0d0d0d;
+    transition: border-color 0.15s;
+    margin-bottom: 3px;
 }
-.img-card-sel {
-    border: 2.5px solid #1DB954;
-    border-radius: 10px;
-    overflow: hidden;
-    cursor: pointer;
-}
-.img-card-desel {
-    border: 2.5px solid #444;
-    border-radius: 10px;
-    overflow: hidden;
-    opacity: 0.4;
-    cursor: pointer;
-}
-.img-card-sel img, .img-card-desel img {
+.img-card:hover { border-color: #333; }
+.img-card img {
     width: 100%;
-    height: 155px;
+    height: 148px;
     object-fit: cover;
     display: block;
 }
-.img-badge-sel {
-    position: absolute;
-    top: 8px; right: 8px;
-    background: #1DB954;
-    color: #000;
-    border-radius: 50%;
-    width: 26px; height: 26px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 900;
-    pointer-events: none;
-}
-.img-badge-desel {
-    position: absolute;
-    top: 8px; right: 8px;
-    background: #333;
-    color: #777;
-    border-radius: 50%;
-    width: 26px; height: 26px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 900;
-    pointer-events: none;
-}
-.img-lbl { font-size: 0.68rem; color: #666; padding: 5px 8px; background: #181818; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* Invisible click button over image */
-.stButton.img-btn > button {
-    position: absolute !important;
-    top: 0 !important; left: 0 !important;
-    width: 100% !important;
-    height: 155px !important;
-    opacity: 0 !important;
-    z-index: 10 !important;
-    border-radius: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    min-height: unset !important;
+.img-card.deselected img { opacity: 0.25; }
+.img-card.deselected { border-color: #111; }
+.img-card.selected { border-color: #1DB954; }
+.img-lbl {
+    font-size: 0.65rem;
+    color: #333;
+    padding: 5px 8px;
+    background: #080808;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.kw-row-item {
-    background: #1a1a1a;
-    border: 1px solid #282828;
-    border-radius: 8px;
-    padding: 11px 16px;
-    font-size: 0.9rem;
-    color: #e0e0e0;
-    display: flex;
-    align-items: center;
-}
-
-.history-item {
-    background: #181818;
-    border: 1px solid #282828;
+/* History item */
+.hist-item {
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
     border-radius: 8px;
     padding: 10px 14px;
     margin: 4px 0;
     font-size: 0.85rem;
-    color: #b3b3b3;
+    color: #555;
 }
 
-.footer { text-align: center; color: #333; font-size: 0.75rem; margin-top: 20px; }
-.made-by { text-align: center; color: #333; font-size: 0.78rem; margin-top: 8px; }
+/* Progress */
+.prog { color: #333; font-size: 0.85rem; margin: 4px 0; }
+
+/* Footer */
+.footer { text-align: center; color: #222; font-size: 0.75rem; margin-top: 16px; }
+.made-by { text-align: center; font-size: 0.75rem; margin-top: 6px; }
 .made-by a { color: #1DB954; text-decoration: none; }
-.prog-text { color: #535353; font-size: 0.85rem; margin: 6px 0; }
+
+/* Form submit button */
+.stForm [data-testid="stFormSubmitButton"] > button {
+    background: #1DB954 !important;
+    color: #000 !important;
+    font-weight: 700 !important;
+    border-radius: 21px !important;
+    height: 42px !important;
+    font-size: 0.82rem !important;
+    letter-spacing: 1.2px !important;
+    text-transform: uppercase !important;
+    width: 100% !important;
+}
+.stForm [data-testid="stFormSubmitButton"] > button:hover {
+    background: #1ED760 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# --- FIREBASE + STATE ---
+# --- INIT ---
 db = init_firebase()
 
 defaults = {
@@ -245,8 +346,7 @@ defaults = {
     "removed_keywords": set(),
     "downloaded_files": [],
     "selected_files": {},
-    "groups": {},           # group_name -> [fpath, ...]
-    "removed_groups": set(),
+    "groups": {},
     "search_history": [],
     "pending_topic": "",
     "pending_pexels": "",
@@ -281,12 +381,9 @@ def get_keywords_ai(topic, api_key, count):
         prompt = f"""You are a professional video editor and B-roll coordinator.
 Video topic: "{topic}"
 Generate exactly {count} stock footage search queries for Pexels and Pixabay.
-RULES:
-- English only
-- Concrete, physically filmable objects or scenes ONLY
-- 1-4 words each, highly specific
-- NO abstract concepts, emotions, or metaphors
-- Output ONLY a comma-separated list. Nothing else."""
+RULES: English only. Concrete filmable objects/scenes only. 1-4 words. Highly specific.
+NO abstract concepts, emotions, or metaphors.
+Output ONLY a comma-separated list. Nothing else."""
         resp = model.generate_content(prompt)
         kws = [clean_kw(k) for k in resp.text.strip().split(',')]
         return [k for k in kws if k and len(k) > 1][:count]
@@ -310,11 +407,9 @@ def pexels_download(query, folder, key, count):
             fpath = os.path.join(folder, fname)
             r = requests.get(img_url, timeout=20)
             if r.status_code == 200:
-                with open(fpath, 'wb') as f:
-                    f.write(r.content)
+                with open(fpath, 'wb') as f: f.write(r.content)
                 files.append(fpath)
-    except:
-        pass
+    except: pass
     return files
 
 def pixabay_download(query, folder, key, count):
@@ -328,19 +423,17 @@ def pixabay_download(query, folder, key, count):
             fpath = os.path.join(folder, fname)
             r = requests.get(img_url, timeout=20)
             if r.status_code == 200:
-                with open(fpath, 'wb') as f:
-                    f.write(r.content)
+                with open(fpath, 'wb') as f: f.write(r.content)
                 files.append(fpath)
-    except:
-        pass
+    except: pass
     return files
 
-def fetch_kw(kw, pexels_key, pixabay_key, photos_per_kw):
+def fetch_kw(kw, pk, pbk, n):
     tmp = tempfile.mkdtemp()
     folder = os.path.join(tmp, clean_filename(kw))
     os.makedirs(folder, exist_ok=True)
-    files = pexels_download(kw, folder, pexels_key, photos_per_kw)
-    files += pixabay_download(kw, folder, pixabay_key, photos_per_kw)
+    files = pexels_download(kw, folder, pk, n)
+    files += pixabay_download(kw, folder, pbk, n)
     return files
 
 def make_zip(files):
@@ -357,115 +450,59 @@ def make_zip(files):
 
 def img_to_b64(fpath):
     try:
-        with open(fpath, 'rb') as f:
-            return base64.b64encode(f.read()).decode()
-    except:
-        return None
-
-def render_group(group_name, group_files):
-    """Render images for a keyword group inside an expander."""
-    visible_files = [f for f in group_files if f not in st.session_state.get("hidden_files", set())]
-    sel_count = sum(1 for f in visible_files if st.session_state.selected_files.get(f, True))
-    total = len(visible_files)
-
-    label = f"{'🟢' if sel_count > 0 else '⚪'} {group_name.replace('_', ' ').upper()}  ·  {sel_count}/{total} selected"
-
-    with st.expander(label, expanded=True):
-        # Remove all / Select all row
-        ca, cb = st.columns([1, 1])
-        all_sel = sel_count == total
-        with ca:
-            if st.button("✓ Select all", key=f"selall_{group_name}"):
-                for f in visible_files:
-                    st.session_state.selected_files[f] = True
-                st.rerun()
-        with cb:
-            if st.button("✕ Remove all", key=f"rmall_{group_name}"):
-                for f in visible_files:
-                    st.session_state.selected_files[f] = False
-                st.rerun()
-
-        # Image grid — 4 columns
-        cols = st.columns(4)
-        for idx, fpath in enumerate(visible_files):
-            with cols[idx % 4]:
-                is_sel = st.session_state.selected_files.get(fpath, True)
-                b64 = img_to_b64(fpath)
-                card_cls = "img-card-sel" if is_sel else "img-card-desel"
-                badge_cls = "img-badge-sel" if is_sel else "img-badge-desel"
-                icon = "✓" if is_sel else "✗"
-
-                # Render image HTML
-                if b64:
-                    st.markdown(f"""
-                    <div class="img-outer">
-                        <div class="{card_cls}">
-                            <img src="data:image/jpeg;base64,{b64}" />
-                            <div class="{badge_cls}">{icon}</div>
-                            <div class="img-lbl">{os.path.basename(fpath)}</div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                    # Invisible button same size as image — overlays on top
-                    st.markdown('<style>.img-btn-wrap { position: relative; margin-top: -178px; height: 155px; }</style>', unsafe_allow_html=True)
-                    st.markdown('<div class="img-btn-wrap">', unsafe_allow_html=True)
-                    clicked = st.button(" ", key=f"img_{fpath}", help="Click to toggle")
-                    st.markdown('</div>', unsafe_allow_html=True)
-
-                    if clicked:
-                        st.session_state.selected_files[fpath] = not is_sel
-                        st.rerun()
+        with open(fpath, 'rb') as f: return base64.b64encode(f.read()).decode()
+    except: return None
 
 # ============================================================
 # HEADER
 # ============================================================
-st.markdown("# 🎬 B-Roll Finder")
+st.markdown("# 🎬 B-Roll <span style='color:#1DB954'>Finder</span>", unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Describe your video — AI picks the keywords, footage downloads itself.</p>', unsafe_allow_html=True)
 
-# --- LIMIT ---
+# LIMIT
 remaining = FREE_LIMIT - st.session_state.usage_count
 if remaining > 0:
-    color = "#1DB954" if remaining > 1 else "#f59b00"
+    dot_color = "#1DB954" if remaining > 1 else "#f59b00"
     st.markdown(f"""
     <div class="limit-badge">
-        🆓 &nbsp; Free uses remaining: <strong style="color:{color};">{remaining} / {FREE_LIMIT}</strong>
-        &nbsp;·&nbsp; <span style="color:#535353;">Buy once for unlimited use</span>
+        <span style="width:8px;height:8px;border-radius:50%;background:{dot_color};display:inline-block;flex-shrink:0;"></span>
+        Free uses remaining: <strong style="color:{dot_color};">{remaining} / {FREE_LIMIT}</strong>
+        <span style="margin-left:auto;color:#2a2a2a;font-size:0.78rem;">Buy once · unlimited use</span>
     </div>
     """, unsafe_allow_html=True)
 else:
     st.markdown("""
     <div class="paywall">
-        <div style="font-size:2rem;margin-bottom:12px;">🔒</div>
-        <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">Free limit reached</div>
-        <div style="color:#b3b3b3;margin-bottom:20px;font-size:0.9rem;max-width:400px;margin-left:auto;margin-right:auto;">
-            Buy the source code once — run it on your own machine with no limits and no subscriptions.
+        <div style="font-size:1.8rem;margin-bottom:14px;">🔒</div>
+        <div style="font-size:1.25rem;font-weight:800;margin-bottom:8px;">Free limit reached</div>
+        <div style="color:#555;margin-bottom:28px;font-size:0.88rem;max-width:360px;margin-left:auto;margin-right:auto;line-height:1.6;">
+            Buy the source code once and run it on your own machine — no limits, no subscriptions.
         </div>
-        <table class="pro-table" style="max-width:440px;">
-            <tr><th>Feature</th><th>Free</th><th>Full Version</th></tr>
-            <tr><td>Uses per session</td><td class="cross">3</td><td class="check">Unlimited</td></tr>
-            <tr><td>Images per keyword</td><td class="cross">Up to 5</td><td class="check">Up to 10</td></tr>
-            <tr><td>Image preview &amp; select</td><td class="check">✓</td><td class="check">✓</td></tr>
-            <tr><td>Add keywords on the fly</td><td class="check">✓</td><td class="check">✓</td></tr>
-            <tr><td>Collapsible groups</td><td class="check">✓</td><td class="check">✓</td></tr>
-            <tr><td>Source code</td><td class="cross">✗</td><td class="check">✓</td></tr>
+        <table class="pro-table">
+            <tr><th>Feature</th><th>Free</th><th>Full version</th></tr>
+            <tr><td>Uses per session</td><td class="no">3</td><td class="yes">Unlimited</td></tr>
+            <tr><td>Images per keyword</td><td class="no">Up to 5</td><td class="yes">Up to 10</td></tr>
+            <tr><td>Image preview &amp; select</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Add keywords on the fly</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+            <tr><td>Source code included</td><td class="no">✗</td><td class="yes">✓</td></tr>
         </table>
-        <br>
         <a href="https://gumroad.com" target="_blank"
-           style="background:#1DB954;color:#000;padding:13px 32px;border-radius:24px;
-                  text-decoration:none;font-weight:700;font-size:0.9rem;">
-            GET IT ON GUMROAD — $12
+           style="display:inline-block;background:#1DB954;color:#000;padding:14px 36px;
+                  border-radius:24px;text-decoration:none;font-weight:800;font-size:0.88rem;
+                  letter-spacing:1px;text-transform:uppercase;">
+            Get it on Gumroad — $12
         </a>
     </div>
     """, unsafe_allow_html=True)
     st.stop()
 
-# --- API KEYS ---
-with st.expander("⚙️  API Keys  —  all free", expanded=False):
-    st.markdown("""<div style="color:#6a6a6a;font-size:0.83rem;margin-bottom:14px;line-height:1.8;">
+# API KEYS
+with st.expander("⚙️  API Keys  —  all free to get", expanded=False):
+    st.markdown("""<div style="color:#333;font-size:0.82rem;margin-bottom:14px;line-height:1.9;">
+    Sign up and copy your key from each platform — all completely free.<br>
     <a href="https://www.pexels.com/api/" target="_blank" style="color:#1DB954;">Pexels</a> &nbsp;·&nbsp;
     <a href="https://pixabay.com/api/" target="_blank" style="color:#1DB954;">Pixabay</a> &nbsp;·&nbsp;
-    <a href="https://aistudio.google.com/" target="_blank" style="color:#1DB954;">Gemini</a>
+    <a href="https://aistudio.google.com/" target="_blank" style="color:#1DB954;">Gemini AI Studio</a>
     </div>""", unsafe_allow_html=True)
     c1, c2, c3 = st.columns(3)
     with c1:
@@ -490,22 +527,23 @@ if st.session_state.stage == "input":
                     st.rerun()
 
     prefill = st.session_state.pop("_prefill", "")
-    st.markdown('<div class="label">Video Topic</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">Video Topic</div>', unsafe_allow_html=True)
     topic = st.text_area("topic", value=prefill,
-        placeholder="e.g. The dark psychology of true crime podcasts...",
-        height=90, label_visibility="collapsed")
+        placeholder="e.g. The dark psychology of true crime podcasts and why millions are obsessed...",
+        height=100, label_visibility="collapsed")
 
+    st.markdown("<br>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
-        st.markdown('<div class="label">Keywords to generate</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label">Keywords to generate</div>', unsafe_allow_html=True)
         keyword_count = st.slider("kw", 3, 20, 10, label_visibility="collapsed")
     with c2:
-        st.markdown('<div class="label">Images per keyword</div>', unsafe_allow_html=True)
+        st.markdown('<div class="section-label">Images per keyword</div>', unsafe_allow_html=True)
         photos_per_kw = st.slider("ph", 1, 5, 3, label_visibility="collapsed")
 
     st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
 
-    if st.button("🔍  GENERATE KEYWORDS"):
+    if st.button("🔍  Generate Keywords"):
         if not topic.strip():
             st.warning("Please enter a video topic.")
         elif not pexels_key or not pixabay_key:
@@ -529,30 +567,31 @@ if st.session_state.stage == "input":
 # STAGE 2 — CONFIRM KEYWORDS
 # ============================================================
 elif st.session_state.stage == "confirm_keywords":
-    st.markdown(f'<p style="color:#535353;font-size:0.85rem;margin-bottom:16px;">Topic: <span style="color:#b3b3b3;">{st.session_state.pending_topic}</span></p>', unsafe_allow_html=True)
-    st.markdown('<div class="label">Review Keywords — remove what you don\'t need</div>', unsafe_allow_html=True)
+    st.markdown(f'<p style="color:#2a2a2a;font-size:0.82rem;margin-bottom:20px;">Topic: <span style="color:#555;">{st.session_state.pending_topic}</span></p>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">Review keywords — remove what you don\'t need</div>', unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
 
     active_kws = [k for k in st.session_state.pending_keywords if k not in st.session_state.removed_keywords]
 
     for kw in active_kws:
-        col_kw, col_x = st.columns([9, 1])
+        col_kw, col_x = st.columns([10, 1])
         with col_kw:
-            st.markdown(f'<div class="kw-row-item">{kw}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="kw-row">{kw}</div>', unsafe_allow_html=True)
         with col_x:
-            if st.button("✕", key=f"rm_{kw}", help="Remove"):
+            if st.button("✕", key=f"rm_{kw}"):
                 st.session_state.removed_keywords.add(kw)
                 st.rerun()
 
-    # Add keyword with form (Enter submits)
     st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="label">Add a keyword</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">Add a keyword</div>', unsafe_allow_html=True)
+
     with st.form("add_kw_form", clear_on_submit=True):
-        col_in, col_btn = st.columns([5, 1])
+        col_in, col_btn = st.columns([4, 1])
         with col_in:
-            new_kw = st.text_input("new_kw_input", placeholder="e.g. crime scene tape", label_visibility="collapsed")
+            new_kw = st.text_input("nk", placeholder="e.g. crime scene tape", label_visibility="collapsed")
         with col_btn:
-            submitted = st.form_submit_button("＋ ADD")
-        if submitted:
+            submitted = st.form_submit_button("＋  Add")
+        if submitted and new_kw.strip():
             cleaned = clean_kw(new_kw)
             if cleaned and cleaned not in st.session_state.pending_keywords:
                 st.session_state.pending_keywords.append(cleaned)
@@ -560,14 +599,14 @@ elif st.session_state.stage == "confirm_keywords":
 
     st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
 
-    col_back, col_dl = st.columns([1, 3])
+    final_kws = [k for k in st.session_state.pending_keywords if k not in st.session_state.removed_keywords]
+    col_back, col_spacer, col_dl = st.columns([1, 0.2, 3])
     with col_back:
         if st.button("← Back"):
             st.session_state.stage = "input"
             st.rerun()
     with col_dl:
-        final_kws = [k for k in st.session_state.pending_keywords if k not in st.session_state.removed_keywords]
-        if st.button(f"⬇  DOWNLOAD FOOTAGE  ({len(final_kws)} keywords)"):
+        if st.button(f"⬇  Download Footage  ({len(final_kws)} keywords)"):
             if not final_kws:
                 st.error("No keywords left.")
             else:
@@ -591,14 +630,13 @@ elif st.session_state.stage == "confirm_keywords":
                 status = st.empty()
 
                 for i, kw in enumerate(final_kws):
-                    status.markdown(f'<p class="prog-text">↓ &nbsp;{kw} &nbsp;({i+1}/{len(final_kws)})</p>', unsafe_allow_html=True)
+                    status.markdown(f'<p class="prog">↓ &nbsp;{kw} &nbsp;<span style="color:#1a1a1a;">({i+1}/{len(final_kws)})</span></p>', unsafe_allow_html=True)
                     kw_folder = os.path.join(folder, clean_filename(kw))
                     os.makedirs(kw_folder, exist_ok=True)
                     files = pexels_download(kw, kw_folder, st.session_state.pending_pexels, st.session_state.pending_photos_per_kw)
                     files += pixabay_download(kw, kw_folder, st.session_state.pending_pixabay, st.session_state.pending_photos_per_kw)
                     all_files.extend(files)
-                    gname = clean_filename(kw)
-                    st.session_state.groups[gname] = files
+                    st.session_state.groups[clean_filename(kw)] = files
                     bar.progress((i + 1) / len(final_kws))
                     time.sleep(0.2)
 
@@ -614,77 +652,115 @@ elif st.session_state.stage == "confirm_keywords":
 # STAGE 3 — PREVIEW
 # ============================================================
 elif st.session_state.stage == "preview":
-
-    if "hidden_files" not in st.session_state:
-        st.session_state.hidden_files = set()
-
     all_files = st.session_state.downloaded_files
-    selected_count = sum(1 for v in st.session_state.selected_files.values() if v)
+    sel_count = sum(1 for v in st.session_state.selected_files.values() if v)
 
+    # Stats
     s1, s2, s3 = st.columns(3)
     with s1:
-        st.markdown(f'<div class="stat"><div class="stat-n">{len(st.session_state.confirmed_keywords)}</div><div class="stat-l">Keywords</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="stat-card"><div class="stat-num">{len(st.session_state.confirmed_keywords)}</div><div class="stat-lbl">Keywords</div></div>', unsafe_allow_html=True)
     with s2:
-        st.markdown(f'<div class="stat"><div class="stat-n">{len(all_files)}</div><div class="stat-l">Images Found</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="stat-card"><div class="stat-num">{len(all_files)}</div><div class="stat-lbl">Images found</div></div>', unsafe_allow_html=True)
     with s3:
-        st.markdown(f'<div class="stat"><div class="stat-n">{selected_count}</div><div class="stat-l">Selected</div></div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="stat-card"><div class="stat-num">{sel_count}</div><div class="stat-lbl">Selected</div></div>', unsafe_allow_html=True)
 
     st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
 
-    # Render each keyword group as collapsible expander
+    # Keyword groups — collapsible
     for group_name, group_files in st.session_state.groups.items():
         if not group_files:
             continue
-        render_group(group_name, group_files)
 
-    # Add keyword on the fly — does NOT reset existing state
-    st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="label">Search another keyword</div>', unsafe_allow_html=True)
-    with st.form("extra_kw_form", clear_on_submit=True):
-        col_in, col_btn = st.columns([5, 1])
-        with col_in:
-            extra_kw = st.text_input("extra_kw_input", placeholder="e.g. forensic lab", label_visibility="collapsed")
-        with col_btn:
-            extra_submitted = st.form_submit_button("🔍 SEARCH")
-        if extra_submitted:
-            ekw = clean_kw(extra_kw)
-            if ekw:
-                with st.spinner(f"Searching: {ekw}..."):
-                    new_files = fetch_kw(ekw, st.session_state.pending_pexels, st.session_state.pending_pixabay, st.session_state.pending_photos_per_kw)
-                if new_files:
-                    gname = clean_filename(ekw)
-                    # Only add, never reset existing groups
-                    if gname not in st.session_state.groups:
-                        st.session_state.groups[gname] = []
-                    st.session_state.groups[gname].extend(new_files)
-                    st.session_state.downloaded_files.extend(new_files)
-                    for f in new_files:
+        g_sel = sum(1 for f in group_files if st.session_state.selected_files.get(f, True))
+        g_total = len(group_files)
+        indicator = "🟢" if g_sel > 0 else "⚫"
+        label = f"{indicator}  {group_name.replace('_', ' ').upper()}  ·  {g_sel} / {g_total}"
+
+        with st.expander(label, expanded=True):
+            # Group action buttons — aligned
+            ba, bb = st.columns(2)
+            with ba:
+                if st.button("✓  Select all", key=f"sa_{group_name}"):
+                    for f in group_files:
                         st.session_state.selected_files[f] = True
-                    if ekw not in st.session_state.confirmed_keywords:
-                        st.session_state.confirmed_keywords.append(ekw)
                     st.rerun()
-                else:
-                    st.warning(f"No images found for '{ekw}'")
+            with bb:
+                if st.button("✕  Remove all", key=f"ra_{group_name}"):
+                    for f in group_files:
+                        st.session_state.selected_files[f] = False
+                    st.rerun()
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # Image grid — 4 columns
+            cols = st.columns(4)
+            for idx, fpath in enumerate(group_files):
+                with cols[idx % 4]:
+                    is_sel = st.session_state.selected_files.get(fpath, True)
+                    b64 = img_to_b64(fpath)
+                    card_cls = "selected" if is_sel else "deselected"
+                    if b64:
+                        st.markdown(f"""
+                        <div class="img-card {card_cls}">
+                            <img src="data:image/jpeg;base64,{b64}" />
+                            <div class="img-lbl">{os.path.basename(fpath)}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    new_val = st.checkbox(
+                        "Keep" if is_sel else "Removed",
+                        value=is_sel,
+                        key=f"cb_{fpath}"
+                    )
+                    if new_val != is_sel:
+                        st.session_state.selected_files[fpath] = new_val
+                        st.rerun()
+
+    # Add keyword on the fly
+    st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-label">Search another keyword</div>', unsafe_allow_html=True)
+
+    with st.form("extra_kw_form", clear_on_submit=True):
+        col_in, col_btn = st.columns([4, 1])
+        with col_in:
+            extra_kw = st.text_input("ek", placeholder="e.g. forensic laboratory", label_visibility="collapsed")
+        with col_btn:
+            extra_sub = st.form_submit_button("🔍  Search")
+        if extra_sub and extra_kw.strip():
+            ekw = clean_kw(extra_kw)
+            with st.spinner(f"Searching: {ekw}..."):
+                new_files = fetch_kw(ekw, st.session_state.pending_pexels, st.session_state.pending_pixabay, st.session_state.pending_photos_per_kw)
+            if new_files:
+                gname = clean_filename(ekw)
+                if gname not in st.session_state.groups:
+                    st.session_state.groups[gname] = []
+                st.session_state.groups[gname].extend(new_files)
+                st.session_state.downloaded_files.extend(new_files)
+                for f in new_files:
+                    st.session_state.selected_files[f] = True
+                if ekw not in st.session_state.confirmed_keywords:
+                    st.session_state.confirmed_keywords.append(ekw)
+                st.rerun()
+            else:
+                st.warning(f"No images found for '{ekw}'")
 
     st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-
-    col_back, col_dl = st.columns([1, 3])
-    with col_back:
-        if st.button("← New Search"):
-            for key in ["downloaded_files", "selected_files", "confirmed_keywords", "groups", "hidden_files"]:
-                st.session_state[key] = [] if isinstance(st.session_state[key], list) else ({} if isinstance(st.session_state[key], dict) else set())
-            st.session_state.stage = "input"
-            st.rerun()
 
     final_files = [f for f, v in st.session_state.selected_files.items() if v]
+    col_back, col_spacer, col_dl = st.columns([1, 0.2, 3])
+    with col_back:
+        if st.button("← New Search"):
+            for k in ["downloaded_files", "selected_files", "confirmed_keywords", "groups"]:
+                st.session_state[k] = [] if isinstance(st.session_state[k], list) else {}
+            st.session_state.stage = "input"
+            st.rerun()
     with col_dl:
         if final_files:
             zip_data = make_zip(final_files)
             size_mb = round(len(zip_data) / 1024 / 1024, 1)
-            st.markdown(f'<p style="color:#535353;font-size:0.85rem;margin-bottom:8px;">{len(final_files)} images · {size_mb} MB</p>', unsafe_allow_html=True)
+            st.markdown(f'<p style="color:#2a2a2a;font-size:0.82rem;margin-bottom:8px;text-align:right;">{len(final_files)} images · {size_mb} MB</p>', unsafe_allow_html=True)
             log_event(db, "download")
             st.download_button(
-                label=f"⬇  DOWNLOAD ZIP  ({len(final_files)} images)",
+                label=f"⬇  Download ZIP  ({len(final_files)} images)",
                 data=zip_data,
                 file_name=f"broll_{int(time.time())}.zip",
                 mime="application/zip",
