@@ -40,8 +40,6 @@ html, body, [class*="css"] {
     background-color: #0a0a0a;
     color: #FFFFFF;
 }
-
-/* Subtle grid background */
 .stApp {
     background-color: #0a0a0a;
     background-image:
@@ -49,8 +47,6 @@ html, body, [class*="css"] {
         linear-gradient(90deg, rgba(29,185,84,0.03) 1px, transparent 1px);
     background-size: 40px 40px;
 }
-
-/* Green glow at top */
 .stApp::before {
     content: '';
     position: fixed;
@@ -63,7 +59,6 @@ html, body, [class*="css"] {
     pointer-events: none;
     z-index: 0;
 }
-
 .block-container {
     max-width: 880px !important;
     margin: 0 auto !important;
@@ -71,8 +66,6 @@ html, body, [class*="css"] {
     position: relative;
     z-index: 1;
 }
-
-/* Typography */
 h1 {
     font-size: 2.8rem !important;
     font-weight: 900 !important;
@@ -81,29 +74,10 @@ h1 {
     line-height: 1 !important;
     margin-bottom: 0 !important;
 }
-h1 span { color: #1DB954; }
-
-.subtitle {
-    color: #4a4a4a;
-    font-size: 0.95rem;
-    margin-top: 8px;
-    margin-bottom: 40px;
-    letter-spacing: 0.2px;
-}
-
-.section-label {
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #3a3a3a;
-    margin-bottom: 10px;
-}
-
-/* Divider */
+.subtitle { color: #4a4a4a; font-size: 0.95rem; margin-top: 8px; margin-bottom: 40px; }
+.section-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #3a3a3a; margin-bottom: 10px; }
 .hr { border: none; border-top: 1px solid #1a1a1a; margin: 32px 0; }
 
-/* Inputs */
 .stTextInput > div > input,
 .stTextArea > div > textarea {
     background-color: #111111 !important;
@@ -113,20 +87,15 @@ h1 span { color: #1DB954; }
     font-size: 0.93rem !important;
     padding: 13px 16px !important;
     font-family: 'Inter', sans-serif !important;
-    transition: border-color 0.15s !important;
 }
 .stTextInput > div > input:focus,
 .stTextArea > div > textarea:focus {
     border-color: #1DB954 !important;
     box-shadow: 0 0 0 3px rgba(29,185,84,0.1) !important;
-    outline: none !important;
 }
 .stTextInput > div > input::placeholder,
-.stTextArea > div > textarea::placeholder {
-    color: #333 !important;
-}
+.stTextArea > div > textarea::placeholder { color: #333 !important; }
 
-/* ALL buttons — green/black system */
 .stButton > button {
     background: #1DB954 !important;
     color: #000000 !important;
@@ -140,50 +109,11 @@ h1 span { color: #1DB954; }
     letter-spacing: 1.2px !important;
     text-transform: uppercase !important;
     transition: all 0.15s ease !important;
-    cursor: pointer !important;
 }
-.stButton > button:hover {
-    background: #1ED760 !important;
-    transform: scale(1.02) !important;
-}
-.stButton > button:active {
-    transform: scale(0.98) !important;
-}
+.stButton > button:hover { background: #1ED760 !important; transform: scale(1.02) !important; }
 
-/* Secondary / danger buttons */
-.stButton.danger > button {
-    background: #111 !important;
-    color: #cc4444 !important;
-    border: 1px solid #2a1a1a !important;
-}
-.stButton.danger > button:hover {
-    background: #cc4444 !important;
-    color: #fff !important;
-    border-color: #cc4444 !important;
-}
+.stSlider [data-baseweb="slider"] > div > div > div { background: #1DB954 !important; }
 
-/* Ghost button */
-.stButton.ghost > button {
-    background: transparent !important;
-    color: #555 !important;
-    border: 1px solid #222 !important;
-}
-.stButton.ghost > button:hover {
-    background: #111 !important;
-    color: #fff !important;
-    border-color: #333 !important;
-}
-
-/* Sliders */
-.stSlider [data-baseweb="slider"] div[role="slider"] {
-    background: #1DB954 !important;
-    border-color: #1DB954 !important;
-}
-.stSlider [data-baseweb="slider"] > div > div > div {
-    background: #1DB954 !important;
-}
-
-/* Expander */
 .stExpander {
     background: #0d0d0d !important;
     border: 1px solid #1a1a1a !important;
@@ -191,31 +121,11 @@ h1 span { color: #1DB954; }
     margin-bottom: 8px !important;
     overflow: hidden !important;
 }
-.stExpander > details > summary {
-    padding: 14px 18px !important;
-    cursor: pointer !important;
-}
-.stExpander > details > summary:hover {
-    background: #111 !important;
-}
 
-/* Checkbox */
-.stCheckbox > label {
-    color: #888 !important;
-    font-size: 0.8rem !important;
-    gap: 8px !important;
-}
-.stCheckbox > label > span[data-baseweb="checkbox"] > div {
-    border-color: #333 !important;
-    background: transparent !important;
-    border-radius: 4px !important;
-}
-.stCheckbox > label > span[data-baseweb="checkbox"] > div[data-checked="true"] {
-    background: #1DB954 !important;
-    border-color: #1DB954 !important;
-}
+.stCheckbox > label { color: #555 !important; font-size: 0.8rem !important; }
+.stCheckbox > label > span[data-baseweb="checkbox"] > div { border-color: #333 !important; background: transparent !important; border-radius: 4px !important; }
+.stCheckbox > label > span[data-baseweb="checkbox"] > div[data-checked="true"] { background: #1DB954 !important; border-color: #1DB954 !important; }
 
-/* Limit badge */
 .limit-badge {
     background: #0d0d0d;
     border: 1px solid #1a1a1a;
@@ -228,8 +138,6 @@ h1 span { color: #1DB954; }
     align-items: center;
     gap: 8px;
 }
-
-/* Paywall */
 .paywall {
     background: #0d0d0d;
     border: 1px solid #1a1a1a;
@@ -244,79 +152,25 @@ h1 span { color: #1DB954; }
 .pro-table .yes { color: #1DB954; font-weight: 700; }
 .pro-table .no { color: #2a2a2a; }
 
-/* Stat cards */
-.stat-card {
-    background: #0d0d0d;
-    border: 1px solid #1a1a1a;
-    border-radius: 12px;
-    padding: 24px 16px;
-    text-align: center;
-}
+.stat-card { background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 12px; padding: 24px 16px; text-align: center; }
 .stat-num { font-size: 2.4rem; font-weight: 900; color: #1DB954; line-height: 1; }
 .stat-lbl { font-size: 0.65rem; color: #333; margin-top: 8px; text-transform: uppercase; letter-spacing: 2px; }
 
-/* Keyword row */
-.kw-row {
-    display: flex;
-    align-items: center;
-    background: #0d0d0d;
-    border: 1px solid #1a1a1a;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-bottom: 6px;
-    font-size: 0.9rem;
-    color: #ccc;
-}
+.kw-row { display: flex; align-items: center; background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 8px; padding: 12px 16px; margin-bottom: 6px; font-size: 0.9rem; color: #ccc; }
 
-/* Image card */
-.img-card {
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1.5px solid #1a1a1a;
-    background: #0d0d0d;
-    transition: border-color 0.15s;
-    margin-bottom: 3px;
-}
-.img-card:hover { border-color: #333; }
-.img-card img {
-    width: 100%;
-    height: 148px;
-    object-fit: cover;
-    display: block;
-}
-.img-card.deselected img { opacity: 0.25; }
+.img-card { border-radius: 10px; overflow: hidden; border: 1.5px solid #1a1a1a; background: #0d0d0d; margin-bottom: 3px; }
+.img-card img { width: 100%; height: 148px; object-fit: cover; display: block; }
+.img-card.deselected img { opacity: 0.2; }
 .img-card.deselected { border-color: #111; }
 .img-card.selected { border-color: #1DB954; }
-.img-lbl {
-    font-size: 0.65rem;
-    color: #333;
-    padding: 5px 8px;
-    background: #080808;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
+.img-lbl { font-size: 0.65rem; color: #333; padding: 5px 8px; background: #080808; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* History item */
-.hist-item {
-    background: #0d0d0d;
-    border: 1px solid #1a1a1a;
-    border-radius: 8px;
-    padding: 10px 14px;
-    margin: 4px 0;
-    font-size: 0.85rem;
-    color: #555;
-}
-
-/* Progress */
+.hist-item { background: #0d0d0d; border: 1px solid #1a1a1a; border-radius: 8px; padding: 10px 14px; margin: 4px 0; font-size: 0.85rem; color: #555; }
 .prog { color: #333; font-size: 0.85rem; margin: 4px 0; }
-
-/* Footer */
 .footer { text-align: center; color: #222; font-size: 0.75rem; margin-top: 16px; }
 .made-by { text-align: center; font-size: 0.75rem; margin-top: 6px; }
 .made-by a { color: #1DB954; text-decoration: none; }
 
-/* Form submit button */
 .stForm [data-testid="stFormSubmitButton"] > button {
     background: #1DB954 !important;
     color: #000 !important;
@@ -328,14 +182,15 @@ h1 span { color: #1DB954; }
     text-transform: uppercase !important;
     width: 100% !important;
 }
-.stForm [data-testid="stFormSubmitButton"] > button:hover {
-    background: #1ED760 !important;
-}
 </style>
 """, unsafe_allow_html=True)
 
 # --- INIT ---
 db = init_firebase()
+
+# Built-in API keys from Streamlit secrets
+PEXELS_KEY = st.secrets.get("PEXELS_KEY", "")
+PIXABAY_KEY = st.secrets.get("PIXABAY_KEY", "")
 
 defaults = {
     "usage_count": 0,
@@ -349,9 +204,8 @@ defaults = {
     "groups": {},
     "search_history": [],
     "pending_topic": "",
-    "pending_pexels": "",
-    "pending_pixabay": "",
     "pending_photos_per_kw": 3,
+    "gemini_key": "",
 }
 for k, v in defaults.items():
     if k not in st.session_state:
@@ -395,8 +249,8 @@ def keywords_from_topic(topic, count):
     words = re.sub(r"[^\w\s]", "", topic).split()
     return [w for w in words if len(w) > 3][:count]
 
-def pexels_download(query, folder, key, count):
-    headers = {'Authorization': key}
+def pexels_download(query, folder, count):
+    headers = {'Authorization': PEXELS_KEY}
     url = f"https://api.pexels.com/v1/search?query={urllib.parse.quote(query)}&per_page={count}&orientation=landscape&size=large"
     files = []
     try:
@@ -412,8 +266,8 @@ def pexels_download(query, folder, key, count):
     except: pass
     return files
 
-def pixabay_download(query, folder, key, count):
-    url = f"https://pixabay.com/api/?key={key}&q={urllib.parse.quote(query)}&image_type=photo&orientation=horizontal&per_page={count}&safesearch=true&min_width=1920&order=popular"
+def pixabay_download(query, folder, count):
+    url = f"https://pixabay.com/api/?key={PIXABAY_KEY}&q={urllib.parse.quote(query)}&image_type=photo&orientation=horizontal&per_page={count}&safesearch=true&min_width=1920&order=popular"
     files = []
     try:
         data = requests.get(url, timeout=10).json()
@@ -428,12 +282,12 @@ def pixabay_download(query, folder, key, count):
     except: pass
     return files
 
-def fetch_kw(kw, pk, pbk, n):
+def fetch_kw(kw, n):
     tmp = tempfile.mkdtemp()
     folder = os.path.join(tmp, clean_filename(kw))
     os.makedirs(folder, exist_ok=True)
-    files = pexels_download(kw, folder, pk, n)
-    files += pixabay_download(kw, folder, pbk, n)
+    files = pexels_download(kw, folder, n)
+    files += pixabay_download(kw, folder, n)
     return files
 
 def make_zip(files):
@@ -486,6 +340,7 @@ else:
             <tr><td>Add keywords on the fly</td><td class="yes">✓</td><td class="yes">✓</td></tr>
             <tr><td>Source code included</td><td class="no">✗</td><td class="yes">✓</td></tr>
         </table>
+        <br>
         <a href="https://gumroad.com" target="_blank"
            style="display:inline-block;background:#1DB954;color:#000;padding:14px 36px;
                   border-radius:24px;text-decoration:none;font-weight:800;font-size:0.88rem;
@@ -496,21 +351,17 @@ else:
     """, unsafe_allow_html=True)
     st.stop()
 
-# API KEYS
-with st.expander("⚙️  API Keys  —  all free to get", expanded=False):
-    st.markdown("""<div style="color:#333;font-size:0.82rem;margin-bottom:14px;line-height:1.9;">
-    Sign up and copy your key from each platform — all completely free.<br>
-    <a href="https://www.pexels.com/api/" target="_blank" style="color:#1DB954;">Pexels</a> &nbsp;·&nbsp;
-    <a href="https://pixabay.com/api/" target="_blank" style="color:#1DB954;">Pixabay</a> &nbsp;·&nbsp;
-    <a href="https://aistudio.google.com/" target="_blank" style="color:#1DB954;">Gemini AI Studio</a>
+# Optional Gemini key
+with st.expander("✨  Add Gemini API Key for smarter keywords  (optional)", expanded=False):
+    st.markdown("""<div style="color:#333;font-size:0.82rem;margin-bottom:12px;line-height:1.8;">
+    Without a Gemini key the tool extracts words from your topic directly.<br>
+    With it, AI generates specific, filmable search queries tailored to your video.<br>
+    <a href="https://aistudio.google.com/" target="_blank" style="color:#1DB954;">Get free Gemini key →</a>
     </div>""", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        pexels_key = st.text_input("Pexels API Key", type="password", placeholder="px-...", key="pk")
-    with c2:
-        pixabay_key = st.text_input("Pixabay API Key", type="password", placeholder="53371816-...", key="pbk")
-    with c3:
-        gemini_key = st.text_input("Gemini API Key", type="password", placeholder="AIzaSy...", key="gk")
+    gemini_key_input = st.text_input("Gemini API Key", type="password", placeholder="AIzaSy...", key="gk",
+                                      value=st.session_state.gemini_key)
+    if gemini_key_input:
+        st.session_state.gemini_key = gemini_key_input
 
 st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
 
@@ -546,18 +397,15 @@ if st.session_state.stage == "input":
     if st.button("🔍  Generate Keywords"):
         if not topic.strip():
             st.warning("Please enter a video topic.")
-        elif not pexels_key or not pixabay_key:
-            st.warning("Please enter at least your Pexels and Pixabay API keys.")
         else:
             with st.spinner("Generating keywords..."):
-                kws = get_keywords_ai(topic, gemini_key, keyword_count) if gemini_key else keywords_from_topic(topic, keyword_count)
+                gk = st.session_state.gemini_key
+                kws = get_keywords_ai(topic, gk, keyword_count) if gk else keywords_from_topic(topic, keyword_count)
             if not kws:
                 st.error("Could not generate keywords.")
             else:
                 st.session_state.pending_keywords = kws
                 st.session_state.pending_topic = topic
-                st.session_state.pending_pexels = pexels_key
-                st.session_state.pending_pixabay = pixabay_key
                 st.session_state.pending_photos_per_kw = photos_per_kw
                 st.session_state.removed_keywords = set()
                 st.session_state.stage = "confirm_keywords"
@@ -633,8 +481,8 @@ elif st.session_state.stage == "confirm_keywords":
                     status.markdown(f'<p class="prog">↓ &nbsp;{kw} &nbsp;<span style="color:#1a1a1a;">({i+1}/{len(final_kws)})</span></p>', unsafe_allow_html=True)
                     kw_folder = os.path.join(folder, clean_filename(kw))
                     os.makedirs(kw_folder, exist_ok=True)
-                    files = pexels_download(kw, kw_folder, st.session_state.pending_pexels, st.session_state.pending_photos_per_kw)
-                    files += pixabay_download(kw, kw_folder, st.session_state.pending_pixabay, st.session_state.pending_photos_per_kw)
+                    files = pexels_download(kw, kw_folder, st.session_state.pending_photos_per_kw)
+                    files += pixabay_download(kw, kw_folder, st.session_state.pending_photos_per_kw)
                     all_files.extend(files)
                     st.session_state.groups[clean_filename(kw)] = files
                     bar.progress((i + 1) / len(final_kws))
@@ -655,7 +503,6 @@ elif st.session_state.stage == "preview":
     all_files = st.session_state.downloaded_files
     sel_count = sum(1 for v in st.session_state.selected_files.values() if v)
 
-    # Stats
     s1, s2, s3 = st.columns(3)
     with s1:
         st.markdown(f'<div class="stat-card"><div class="stat-num">{len(st.session_state.confirmed_keywords)}</div><div class="stat-lbl">Keywords</div></div>', unsafe_allow_html=True)
@@ -666,18 +513,15 @@ elif st.session_state.stage == "preview":
 
     st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
 
-    # Keyword groups — collapsible
     for group_name, group_files in st.session_state.groups.items():
         if not group_files:
             continue
-
         g_sel = sum(1 for f in group_files if st.session_state.selected_files.get(f, True))
         g_total = len(group_files)
         indicator = "🟢" if g_sel > 0 else "⚫"
         label = f"{indicator}  {group_name.replace('_', ' ').upper()}  ·  {g_sel} / {g_total}"
 
         with st.expander(label, expanded=True):
-            # Group action buttons — aligned
             ba, bb = st.columns(2)
             with ba:
                 if st.button("✓  Select all", key=f"sa_{group_name}"):
@@ -691,8 +535,6 @@ elif st.session_state.stage == "preview":
                     st.rerun()
 
             st.markdown("<br>", unsafe_allow_html=True)
-
-            # Image grid — 4 columns
             cols = st.columns(4)
             for idx, fpath in enumerate(group_files):
                 with cols[idx % 4]:
@@ -715,7 +557,6 @@ elif st.session_state.stage == "preview":
                         st.session_state.selected_files[fpath] = new_val
                         st.rerun()
 
-    # Add keyword on the fly
     st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
     st.markdown('<div class="section-label">Search another keyword</div>', unsafe_allow_html=True)
 
@@ -728,7 +569,7 @@ elif st.session_state.stage == "preview":
         if extra_sub and extra_kw.strip():
             ekw = clean_kw(extra_kw)
             with st.spinner(f"Searching: {ekw}..."):
-                new_files = fetch_kw(ekw, st.session_state.pending_pexels, st.session_state.pending_pixabay, st.session_state.pending_photos_per_kw)
+                new_files = fetch_kw(ekw, st.session_state.pending_photos_per_kw)
             if new_files:
                 gname = clean_filename(ekw)
                 if gname not in st.session_state.groups:
