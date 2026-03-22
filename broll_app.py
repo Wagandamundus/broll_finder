@@ -92,6 +92,14 @@ h1 {
 .stTextArea > div > textarea:focus {
     border-color: #1DB954 !important;
     box-shadow: 0 0 0 3px rgba(29,185,84,0.1) !important;
+.stTextArea > div > div {
+    border-color: #1DB954 !important;
+}
+textarea:focus {
+    outline: none !important;
+    border-color: #1DB954 !important;
+}
+            
 }
 .stTextInput > div > input::placeholder,
 .stTextArea > div > textarea::placeholder { color: #333 !important; }
