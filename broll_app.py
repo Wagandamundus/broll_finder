@@ -6,10 +6,12 @@ import re
 import zipfile
 import tempfile
 import time
+import base64
 import google.generativeai as genai
 import firebase_admin
 from firebase_admin import credentials, firestore
 from datetime import datetime
+from collections import defaultdict
 
 # --- FIREBASE ---
 @st.cache_resource
@@ -30,170 +32,77 @@ def log_event(db, event_type):
         pass
 
 # --- PAGE CONFIG ---
-st.set_page_config(
-    page_title="B-Roll Finder",
-    page_icon="🎬",
-    layout="wide"
-)
+st.set_page_config(page_title="B-Roll Finder", page_icon="🎬", layout="wide")
 
 # --- STYLES ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-        background-color: #121212;
-        color: #FFFFFF;
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; background-color: #121212; color: #FFFFFF; }
+    .block-container { max-width: 860px; margin: auto; padding-top: 2.5rem; padding-bottom: 3rem; }
+    h1 { font-size: 2.6rem !important; font-weight: 900 !important; color: #1DB954 !important; letter-spacing: -1.5px; margin-bottom: 0 !important; }
+    .subtitle { color: #6a6a6a; font-size: 0.95rem; margin-top: 6px; margin-bottom: 32px; }
+    .label { font-size: 0.7rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: #535353; margin-bottom: 8px; }
+    .stTextInput > div > input, .stTextArea > div > textarea {
+        background-color: #282828 !important; border: 1.5px solid #3a3a3a !important;
+        border-radius: 8px !important; color: #FFFFFF !important; font-size: 0.95rem !important; padding: 12px 16px !important;
     }
-
-    .block-container {
-        max-width: 780px;
-        margin: auto;
-        padding-top: 2.5rem;
-        padding-bottom: 3rem;
+    .stTextInput > div > input:focus, .stTextArea > div > textarea:focus {
+        border-color: #1DB954 !important; box-shadow: 0 0 0 3px rgba(29,185,84,0.12) !important;
     }
-
-    h1 {
-        font-size: 2.6rem !important;
-        font-weight: 900 !important;
-        color: #1DB954 !important;
-        letter-spacing: -1.5px;
-        margin-bottom: 0 !important;
-    }
-
-    .subtitle {
-        color: #6a6a6a;
-        font-size: 0.95rem;
-        margin-top: 6px;
-        margin-bottom: 32px;
-    }
-
-    .label {
-        font-size: 0.7rem;
-        font-weight: 700;
-        letter-spacing: 2.5px;
-        text-transform: uppercase;
-        color: #535353;
-        margin-bottom: 8px;
-    }
-
-    .stTextInput > div > input,
-    .stTextArea > div > textarea {
-        background-color: #282828 !important;
-        border: 1.5px solid #3a3a3a !important;
-        border-radius: 8px !important;
-        color: #FFFFFF !important;
-        font-size: 0.95rem !important;
-        padding: 12px 16px !important;
-    }
-    .stTextInput > div > input:focus,
-    .stTextArea > div > textarea:focus {
-        border-color: #1DB954 !important;
-        box-shadow: 0 0 0 3px rgba(29,185,84,0.12) !important;
-    }
-
     .stButton > button {
-        background: #1DB954 !important;
-        color: #000 !important;
-        font-size: 0.9rem !important;
-        font-weight: 700 !important;
-        height: 48px !important;
-        border-radius: 24px !important;
-        border: none !important;
-        width: 100% !important;
-        letter-spacing: 1px;
-        text-transform: uppercase;
+        background: #1DB954 !important; color: #000 !important; font-size: 0.9rem !important;
+        font-weight: 700 !important; height: 48px !important; border-radius: 24px !important;
+        border: none !important; width: 100% !important; letter-spacing: 1px; text-transform: uppercase;
     }
-    .stButton > button:hover {
-        background: #1ED760 !important;
-        transform: scale(1.02);
-    }
-
-    .stExpander {
-        background-color: #1a1a1a !important;
-        border: 1px solid #282828 !important;
-        border-radius: 12px !important;
-    }
-
-    .pill {
-        display: inline-block;
-        background: #282828;
-        color: #1DB954;
-        border-radius: 20px;
-        padding: 5px 14px;
-        margin: 3px 2px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        border: 1px solid #333;
-    }
-
-    .stat {
-        background: #181818;
-        border: 1px solid #282828;
-        border-radius: 12px;
-        padding: 22px 16px;
-        text-align: center;
-    }
-    .stat-n {
-        font-size: 2.2rem;
-        font-weight: 900;
-        color: #1DB954;
-        line-height: 1;
-    }
-    .stat-l {
-        font-size: 0.72rem;
-        color: #535353;
-        margin-top: 6px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
+    .stButton > button:hover { background: #1ED760 !important; transform: scale(1.02); }
+    .stExpander { background-color: #1a1a1a !important; border: 1px solid #282828 !important; border-radius: 12px !important; }
+    .pill { display: inline-block; background: #282828; color: #1DB954; border-radius: 20px; padding: 5px 14px; margin: 3px 2px; font-size: 0.8rem; font-weight: 600; border: 1px solid #333; }
+    .stat { background: #181818; border: 1px solid #282828; border-radius: 12px; padding: 22px 16px; text-align: center; }
+    .stat-n { font-size: 2.2rem; font-weight: 900; color: #1DB954; line-height: 1; }
+    .stat-l { font-size: 0.72rem; color: #535353; margin-top: 6px; text-transform: uppercase; letter-spacing: 1px; }
     .hr { border: none; border-top: 1px solid #282828; margin: 28px 0; }
-
-    .limit-badge {
-        background: #181818;
-        border: 1px solid #282828;
-        border-radius: 10px;
-        padding: 12px 18px;
-        margin-bottom: 28px;
-        font-size: 0.88rem;
-        color: #b3b3b3;
-    }
-
-    .paywall {
-        background: #1a0a0a;
-        border: 1px solid #533;
-        border-radius: 14px;
-        padding: 36px 28px;
-        margin-bottom: 24px;
-        text-align: center;
-    }
-
-    .footer {
-        text-align: center;
-        color: #333;
-        font-size: 0.75rem;
-        margin-top: 20px;
-    }
-
-    .prog-text {
-        color: #535353;
-        font-size: 0.85rem;
-        margin: 6px 0;
-    }
+    .limit-badge { background: #181818; border: 1px solid #282828; border-radius: 10px; padding: 12px 18px; margin-bottom: 28px; font-size: 0.88rem; color: #b3b3b3; }
+    .paywall { background: #1a0a0a; border: 1px solid #533; border-radius: 14px; padding: 36px 28px; margin-bottom: 24px; text-align: center; }
+    .preview-card { background: #1a1a1a; border: 1px solid #282828; border-radius: 10px; overflow: hidden; transition: border 0.15s; margin-bottom: 4px; }
+    .preview-card:hover { border-color: #1DB954; }
+    .preview-card img { width: 100%; height: 110px; object-fit: cover; display: block; }
+    .preview-card .card-label { font-size: 0.72rem; color: #888; padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .section-header { font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #535353; margin: 20px 0 10px; }
+    .history-item { background: #181818; border: 1px solid #282828; border-radius: 8px; padding: 10px 14px; margin: 4px 0; font-size: 0.85rem; color: #b3b3b3; cursor: pointer; }
+    .history-item:hover { border-color: #1DB954; color: #fff; }
+    .pro-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .pro-table th { background: #1a1a1a; color: #1DB954; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; padding: 10px 14px; text-align: left; }
+    .pro-table td { padding: 10px 14px; font-size: 0.85rem; border-top: 1px solid #282828; color: #b3b3b3; }
+    .pro-table .check { color: #1DB954; font-weight: 700; }
+    .pro-table .cross { color: #535353; }
+    .footer { text-align: center; color: #333; font-size: 0.75rem; margin-top: 20px; }
+    .made-by { text-align: center; color: #333; font-size: 0.78rem; margin-top: 8px; }
+    .made-by a { color: #1DB954; text-decoration: none; }
+    .made-by a:hover { color: #1ED760; }
+    .prog-text { color: #535353; font-size: 0.85rem; margin: 6px 0; }
+    .lang-badge { display: inline-block; background: #282828; border: 1px solid #3a3a3a; border-radius: 20px; padding: 4px 14px; font-size: 0.78rem; color: #888; cursor: pointer; margin-left: 12px; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- INIT ---
+# --- INIT STATE ---
 db = init_firebase()
 
-if "usage_count" not in st.session_state:
-    st.session_state.usage_count = 0
-if "last_keywords" not in st.session_state:
-    st.session_state.last_keywords = []
-if "visit_logged" not in st.session_state:
-    st.session_state.visit_logged = False
+defaults = {
+    "usage_count": 0,
+    "last_keywords": [],
+    "visit_logged": False,
+    "downloaded_files": [],
+    "selected_files": {},
+    "show_preview": False,
+    "tmp_folder": None,
+    "search_history": [],
+    "lang": "EN",
+    "edited_keywords": [],
+}
+for k, v in defaults.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 if not st.session_state.visit_logged:
     log_event(db, "visit")
@@ -204,24 +113,24 @@ FREE_LIMIT = 3
 # --- HELPERS ---
 def clean_filename(text):
     text = str(text).replace(" ", "_").lower()
-    tr_map = {'ı':'i','ğ':'g','ü':'u','ş':'s','ö':'o','ç':'c',
-              'İ':'I','Ğ':'G','Ü':'U','Ş':'S','Ö':'O','Ç':'C'}
+    tr_map = {'ı':'i','ğ':'g','ü':'u','ş':'s','ö':'o','ç':'c','İ':'I','Ğ':'G','Ü':'U','Ş':'S','Ö':'O','Ç':'C'}
     for tr, en in tr_map.items():
         text = text.replace(tr, en)
     return re.sub(r'[\\/*?:"<>|]', "", text)[:40]
 
-def get_keywords(topic, api_key, count):
+def get_keywords(topic, api_key, count, lang):
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
+        lang_note = "Search queries must be in TURKISH." if lang == "TR" else "Search queries must be in ENGLISH."
         prompt = f"""You are a professional video editor and B-roll coordinator.
 
 Video topic: "{topic}"
 
 Generate exactly {count} stock footage search queries for Pexels and Pixabay.
+{lang_note}
 
 RULES:
-- English only
 - Concrete, physically filmable objects or scenes ONLY
 - 1-4 words each, highly specific
 - Think like a camera operator: what can you actually film?
@@ -245,7 +154,7 @@ def pexels_download(query, folder, key, count):
     try:
         data = requests.get(url, headers=headers, timeout=10).json()
         for i, p in enumerate(data.get('photos', [])):
-            img_url = p['src'].get('original') or p['src'].get('large2x') or p['src']['large']
+            img_url = p['src'].get('large2x') or p['src']['large']
             fname = f"{clean_filename(query)}_pex_{i+1}.jpg"
             fpath = os.path.join(folder, fname)
             r = requests.get(img_url, timeout=20)
@@ -275,21 +184,40 @@ def pixabay_download(query, folder, key, count):
         pass
     return files
 
-def make_zip(folder):
-    zpath = folder + ".zip"
-    with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for root, _, files in os.walk(folder):
-            for file in files:
-                fp = os.path.join(root, file)
-                zf.write(fp, os.path.relpath(fp, folder))
-    return zpath
+def make_zip(files):
+    import io
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for fpath in files:
+            if os.path.exists(fpath):
+                parts = fpath.replace("\\", "/").split("/")
+                arcname = "/".join(parts[-2:]) if len(parts) >= 2 else os.path.basename(fpath)
+                zf.write(fpath, arcname)
+    buf.seek(0)
+    return buf.read()
+
+def img_to_base64(fpath):
+    try:
+        with open(fpath, 'rb') as f:
+            return base64.b64encode(f.read()).decode()
+    except:
+        return None
 
 # ============================================================
 # UI
 # ============================================================
 
-st.markdown("# 🎬 B-Roll Finder")
-st.markdown('<p class="subtitle">Describe your video — AI picks the keywords, footage downloads itself.</p>', unsafe_allow_html=True)
+# Header row with language toggle
+col_title, col_lang = st.columns([6, 1])
+with col_title:
+    st.markdown("# 🎬 B-Roll Finder")
+    st.markdown('<p class="subtitle">Describe your video — AI picks the keywords, footage downloads itself.</p>', unsafe_allow_html=True)
+with col_lang:
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    lang_label = "🇬🇧 EN" if st.session_state.lang == "EN" else "🇹🇷 TR"
+    if st.button(lang_label, key="lang_btn"):
+        st.session_state.lang = "TR" if st.session_state.lang == "EN" else "EN"
+        st.rerun()
 
 # --- LIMIT ---
 remaining = FREE_LIMIT - st.session_state.usage_count
@@ -306,9 +234,19 @@ else:
     <div class="paywall">
         <div style="font-size:2rem;margin-bottom:12px;">🔒</div>
         <div style="font-size:1.2rem;font-weight:700;margin-bottom:10px;">Free limit reached</div>
-        <div style="color:#b3b3b3;margin-bottom:24px;font-size:0.9rem;max-width:380px;margin-left:auto;margin-right:auto;">
+        <div style="color:#b3b3b3;margin-bottom:20px;font-size:0.9rem;max-width:400px;margin-left:auto;margin-right:auto;">
             Buy the source code once — run it on your own machine with no limits and no subscriptions.
         </div>
+        <table class="pro-table" style="max-width:440px;margin:0 auto 24px;">
+            <tr><th>Feature</th><th>Free</th><th>Full Version</th></tr>
+            <tr><td>Uses per session</td><td class="cross">3</td><td class="check">Unlimited</td></tr>
+            <tr><td>Keywords per search</td><td class="cross">Up to 20</td><td class="check">Unlimited</td></tr>
+            <tr><td>Images per keyword</td><td class="cross">Up to 5</td><td class="check">Up to 10</td></tr>
+            <tr><td>Image preview & select</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Turkish / English mode</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Search history</td><td class="check">✓</td><td class="check">✓</td></tr>
+            <tr><td>Source code</td><td class="cross">✗</td><td class="check">✓</td></tr>
+        </table>
         <a href="https://gumroad.com" target="_blank"
            style="background:#1DB954;color:#000;padding:13px 32px;border-radius:24px;
                   text-decoration:none;font-weight:700;font-size:0.9rem;letter-spacing:0.5px;">
@@ -322,7 +260,7 @@ else:
 with st.expander("⚙️  API Keys  —  all free", expanded=False):
     st.markdown("""
     <div style="color:#6a6a6a;font-size:0.83rem;margin-bottom:14px;line-height:1.8;">
-        All three APIs are completely free. Sign up, grab your key, paste below.<br>
+        All APIs are completely free. Sign up, grab your key, paste below.<br>
         <a href="https://www.pexels.com/api/" target="_blank" style="color:#1DB954;">Pexels</a>
         &nbsp;·&nbsp;
         <a href="https://pixabay.com/api/" target="_blank" style="color:#1DB954;">Pixabay</a>
@@ -340,16 +278,17 @@ with st.expander("⚙️  API Keys  —  all free", expanded=False):
 
 st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
 
+# --- SEARCH HISTORY ---
+if st.session_state.search_history:
+    with st.expander("🕓  Recent searches", expanded=False):
+        for item in st.session_state.search_history[-5:][::-1]:
+            st.markdown(f'<div class="history-item">🔍 &nbsp;{item}</div>', unsafe_allow_html=True)
+
 # --- TOPIC ---
 st.markdown('<div class="label">Video Topic</div>', unsafe_allow_html=True)
-topic = st.text_area(
-    "topic",
-    placeholder="e.g. The science of sleep, REM cycles, and why we dream...",
-    height=90,
-    label_visibility="collapsed"
-)
+lang_placeholder = "örn. Uyku bilimi, REM uykusu ve neden rüya görürüz..." if st.session_state.lang == "TR" else "e.g. The science of sleep, REM cycles, and why we dream..."
+topic = st.text_area("topic", placeholder=lang_placeholder, height=90, label_visibility="collapsed")
 
-# --- SETTINGS ---
 c1, c2 = st.columns(2)
 with c1:
     st.markdown('<div class="label">Keywords to generate</div>', unsafe_allow_html=True)
@@ -358,16 +297,25 @@ with c2:
     st.markdown('<div class="label">Images per keyword</div>', unsafe_allow_html=True)
     photos_per_kw = st.slider("ph", 1, 5, 3, label_visibility="collapsed")
 
-# --- LAST KEYWORDS ---
+# --- KEYWORD EDITOR ---
 if st.session_state.last_keywords:
     st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="label">Last generated keywords</div>', unsafe_allow_html=True)
-    pills = "".join([f'<span class="pill">{k}</span>' for k in st.session_state.last_keywords])
-    st.markdown(pills, unsafe_allow_html=True)
+    with st.expander("✏️  Edit keywords before downloading", expanded=False):
+        st.markdown('<div style="color:#6a6a6a;font-size:0.82rem;margin-bottom:10px;">One keyword per line. Edit, add or remove.</div>', unsafe_allow_html=True)
+        kw_text = st.text_area(
+            "kw_editor",
+            value="\n".join(st.session_state.last_keywords),
+            height=180,
+            label_visibility="collapsed"
+        )
+        if st.button("✓  Apply changes", key="apply_kw"):
+            edited = [k.strip() for k in kw_text.split("\n") if k.strip()]
+            st.session_state.last_keywords = edited
+            st.success(f"{len(edited)} keywords saved.")
 
 st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
 
-# --- BUTTON ---
+# --- FIND BUTTON ---
 if st.button("⬇  FIND B-ROLL"):
     if not topic.strip():
         st.warning("Please enter a video topic.")
@@ -375,65 +323,120 @@ if st.button("⬇  FIND B-ROLL"):
         st.warning("Please enter at least your Pexels and Pixabay API keys.")
     else:
         st.session_state.usage_count += 1
+        st.session_state.show_preview = False
+        st.session_state.downloaded_files = []
+        st.session_state.selected_files = {}
         log_event(db, "search")
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            folder = os.path.join(tmpdir, clean_filename(topic)[:30])
-            os.makedirs(folder)
+        # Save history
+        if topic not in st.session_state.search_history:
+            st.session_state.search_history.append(topic)
+        if len(st.session_state.search_history) > 10:
+            st.session_state.search_history = st.session_state.search_history[-10:]
 
-            with st.spinner("Generating keywords with AI..."):
-                if gemini_key:
-                    keywords = get_keywords(topic, gemini_key, keyword_count)
-                else:
-                    keywords = [w for w in topic.split() if len(w) > 3][:keyword_count]
-                    st.info("No Gemini key provided — searching topic words directly.")
+        tmp = tempfile.mkdtemp()
+        st.session_state.tmp_folder = tmp
+        folder = os.path.join(tmp, clean_filename(topic)[:30])
+        os.makedirs(folder, exist_ok=True)
 
-            if not keywords:
-                st.error("Could not generate keywords. Check your Gemini API key.")
-                st.stop()
+        with st.spinner("Generating keywords with AI..."):
+            if gemini_key:
+                keywords = get_keywords(topic, gemini_key, keyword_count, st.session_state.lang)
+            else:
+                keywords = [w for w in topic.split() if len(w) > 3][:keyword_count]
+                st.info("No Gemini key — searching topic words directly.")
 
-            st.session_state.last_keywords = keywords
-            pills = "".join([f'<span class="pill">{k}</span>' for k in keywords])
-            st.markdown(f'<div style="margin:10px 0 18px;">{pills}</div>', unsafe_allow_html=True)
+        if not keywords:
+            st.error("Could not generate keywords. Check your Gemini API key.")
+            st.stop()
 
-            all_files = []
-            bar = st.progress(0)
-            status = st.empty()
+        st.session_state.last_keywords = keywords
+        pills = "".join([f'<span class="pill">{k}</span>' for k in keywords])
+        st.markdown(f'<div style="margin:10px 0 18px;">{pills}</div>', unsafe_allow_html=True)
 
-            for i, kw in enumerate(keywords):
-                status.markdown(f'<p class="prog-text">↓ &nbsp;{kw} &nbsp;({i+1}/{len(keywords)})</p>', unsafe_allow_html=True)
-                kw_folder = os.path.join(folder, clean_filename(kw))
-                os.makedirs(kw_folder, exist_ok=True)
-                all_files += pexels_download(kw, kw_folder, pexels_key, photos_per_kw)
-                all_files += pixabay_download(kw, kw_folder, pixabay_key, photos_per_kw)
-                bar.progress((i + 1) / len(keywords))
-                time.sleep(0.25)
+        all_files = []
+        bar = st.progress(0)
+        status = st.empty()
 
-            status.empty()
+        for i, kw in enumerate(keywords):
+            status.markdown(f'<p class="prog-text">↓ &nbsp;{kw} &nbsp;({i+1}/{len(keywords)})</p>', unsafe_allow_html=True)
+            kw_folder = os.path.join(folder, clean_filename(kw))
+            os.makedirs(kw_folder, exist_ok=True)
+            all_files += pexels_download(kw, kw_folder, pexels_key, photos_per_kw)
+            all_files += pixabay_download(kw, kw_folder, pixabay_key, photos_per_kw)
+            bar.progress((i + 1) / len(keywords))
+            time.sleep(0.25)
 
-            zip_path = make_zip(folder)
-            with open(zip_path, 'rb') as f:
-                zip_data = f.read()
+        status.empty()
+        bar.empty()
 
-            st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-            s1, s2, s3 = st.columns(3)
-            size_mb = round(len(zip_data) / 1024 / 1024, 1)
-            with s1:
-                st.markdown(f'<div class="stat"><div class="stat-n">{len(keywords)}</div><div class="stat-l">Keywords</div></div>', unsafe_allow_html=True)
-            with s2:
-                st.markdown(f'<div class="stat"><div class="stat-n">{len(all_files)}</div><div class="stat-l">Images Found</div></div>', unsafe_allow_html=True)
-            with s3:
-                st.markdown(f'<div class="stat"><div class="stat-n">{size_mb}MB</div><div class="stat-l">Total Size</div></div>', unsafe_allow_html=True)
+        st.session_state.downloaded_files = all_files
+        st.session_state.selected_files = {f: True for f in all_files}
+        st.session_state.show_preview = True
+        st.rerun()
 
-            st.markdown("<br>", unsafe_allow_html=True)
-            log_event(db, "download")
-            st.download_button(
-                label="⬇  DOWNLOAD ZIP",
-                data=zip_data,
-                file_name=f"broll_{clean_filename(topic)[:20]}.zip",
-                mime="application/zip",
-                use_container_width=True
-            )
+# --- PREVIEW ---
+if st.session_state.show_preview and st.session_state.downloaded_files:
+    files = st.session_state.downloaded_files
+
+    st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
+
+    selected_count = sum(1 for v in st.session_state.selected_files.values() if v)
+    s1, s2, s3 = st.columns(3)
+    with s1:
+        st.markdown(f'<div class="stat"><div class="stat-n">{len(st.session_state.last_keywords)}</div><div class="stat-l">Keywords</div></div>', unsafe_allow_html=True)
+    with s2:
+        st.markdown(f'<div class="stat"><div class="stat-n">{len(files)}</div><div class="stat-l">Images Found</div></div>', unsafe_allow_html=True)
+    with s3:
+        st.markdown(f'<div class="stat"><div class="stat-n">{selected_count}</div><div class="stat-l">Selected</div></div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="label">Preview — uncheck images you don\'t want</div>', unsafe_allow_html=True)
+
+    groups = defaultdict(list)
+    for fpath in files:
+        folder_name = os.path.basename(os.path.dirname(fpath))
+        groups[folder_name].append(fpath)
+
+    for group_name, group_files in groups.items():
+        st.markdown(f'<div class="section-header">{group_name.replace("_", " ")}</div>', unsafe_allow_html=True)
+        cols = st.columns(min(len(group_files), 5))
+        for idx, fpath in enumerate(group_files):
+            with cols[idx % 5]:
+                b64 = img_to_base64(fpath)
+                if b64:
+                    st.markdown(f"""
+                    <div class="preview-card">
+                        <img src="data:image/jpeg;base64,{b64}" />
+                        <div class="card-label">{os.path.basename(fpath)}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                checked = st.checkbox(
+                    "Keep",
+                    value=st.session_state.selected_files.get(fpath, True),
+                    key=f"cb_{fpath}"
+                )
+                st.session_state.selected_files[fpath] = checked
+
+    st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
+
+    final_files = [f for f, v in st.session_state.selected_files.items() if v]
+
+    if final_files:
+        zip_data = make_zip(final_files)
+        size_mb = round(len(zip_data) / 1024 / 1024, 1)
+        st.markdown(f'<p style="color:#535353;font-size:0.85rem;margin-bottom:12px;">{len(final_files)} images selected · {size_mb} MB</p>', unsafe_allow_html=True)
+        log_event(db, "download")
+        st.download_button(
+            label=f"⬇  DOWNLOAD ZIP  ({len(final_files)} images)",
+            data=zip_data,
+            file_name=f"broll_{int(time.time())}.zip",
+            mime="application/zip",
+            use_container_width=True
+        )
+    else:
+        st.warning("No images selected.")
 
 st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
 st.markdown('<p class="footer">B-Roll Finder &nbsp;·&nbsp; Pexels &amp; Pixabay &nbsp;·&nbsp; Gemini AI</p>', unsafe_allow_html=True)
+st.markdown('<p class="made-by">Made by <a href="https://github.com/Wagandamundus" target="_blank">Wagandamundus</a></p>', unsafe_allow_html=True)
