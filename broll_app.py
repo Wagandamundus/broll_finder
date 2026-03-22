@@ -247,7 +247,7 @@ Output ONLY a comma-separated list. Nothing else."""
 
 def keywords_from_topic(topic, count):
     words = re.sub(r"[^\w\s]", "", topic).split()
-    return [w for w in words if len(w) > 3][:count]
+    return [w for w in words if len(w) > 2][:count]
 
 def pexels_download(query, folder, count):
     headers = {'Authorization': PEXELS_KEY}
