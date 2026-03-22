@@ -239,7 +239,7 @@ def clean_kw(kw):
 def get_keywords_ai(topic, api_key, count):
     try:
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         prompt = f"""You are a professional video editor and B-roll coordinator.
 Video topic: "{topic}"
 Generate exactly {count} stock footage search queries for Pexels and Pixabay.
